@@ -1,0 +1,14 @@
+#!/bin/bash
+source "$(dirname "$0")/services"
+
+if [ -d "$CONFIG_DIR" ]; then
+  rm -rf $CONFIG_DIR
+fi
+mkdir -p $CONFIG_DIR
+
+for K in "${!servicesMap[@]}";
+do
+  if [ -f "$BUILD_DIR/$K/config/default.json" ]; then
+    cp $BUILD_DIR/$K/config/default.json $CONFIG_DIR/$K.json
+  fi
+done

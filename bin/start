@@ -1,0 +1,38 @@
+#!/bin/bash
+source "$(dirname "$0")/services"
+
+if [ ! -d "$CONFIG_DIR" ]; then
+  echo "Some services require initial configuration. Run $(tput setaf 3)yarn configure$(tput setaf 7) to copy default configuration"
+  exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage:"
+  echo "  run [--all] [<service> [...]]"
+  echo "Flags:"
+  echo "  --all - run all services"
+  echo "Available services to start:"
+  docker-compose config --services
+  exit 0
+fi
+
+startAll=false
+declare -A runModules
+for arg in "$@"
+do
+  if [ "$arg" == "--all" ]; then
+    startAll=true
+  else
+    runModules[$arg]=true
+  fi
+done
+
+if [ "$startAll" == "true" ]; then
+  docker-compose up -d
+else
+  for K in "${!runModules[@]}";
+  do
+    echo "Running $K"
+    docker-compose up -d $K
+  done
+fi

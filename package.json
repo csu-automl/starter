@@ -1,0 +1,14 @@
+{
+  "name": "starter.automl.ai",
+  "version": "1.0.0",
+  "author": "Boris Tarelkin <tarelkinba@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "./bin/build",
+    "update": "./bin/update",
+    "stop": "./bin/stop",
+    "start": "./bin/start",
+    "restart": "./bin/restart",
+    "configure": "./bin/configure"
+  }
+}

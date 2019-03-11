@@ -1,0 +1,30 @@
+ROOT_DIR="$(cd "$(dirname "$0")" && cd .. && pwd)"
+BUILD_DIR="$ROOT_DIR/build"
+CONFIG_DIR="$ROOT_DIR/config"
+
+if (unset a; set -A a a; eval "a=(a b)"; eval '[ -n "${a[1]}" ]'
+   ) > /dev/null 2>&1
+then
+  array_supported=true
+else
+  array_supported=false
+fi
+
+if [ "$array_supported" == "false" ]; then
+  echo "$(tput setaf 1)Arrays are not supported. Exiting$(tput sgr 0)"
+  exit 1
+fi
+
+mainBranch=master
+
+declare -A servicesMap
+servicesMap[auth]="git@github.com:csu-automl/auth.git#$mainBranch"
+servicesMap[backend]="git@github.com:csu-automl/backend.git#$mainBranch"
+servicesMap[shell]="git@github.com:csu-automl/shell.git#$mainBranch"
+
+print_services () {
+  for K in "${!servicesMap[@]}";
+  do
+    echo "  $K"
+  done
+}

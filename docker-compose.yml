@@ -1,0 +1,89 @@
+version: '3.4'
+services:
+  mongo:
+    container_name: mongo
+    image: "mongo:3.4-jessie"
+    volumes:
+      - type: volume
+        source: automl.mongo-db
+        target: /data/db
+    networks:
+      automl:
+        ipv4_address: 192.165.13.2
+    restart: always
+
+  rabbit:
+    container_name: rabbit
+    image: "rabbitmq:3.7-management"
+    networks:
+      automl:
+        ipv4_address: 192.165.13.3
+    restart: always
+
+  auth:
+    container_name: auth
+    image: "automl/auth"
+    volumes:
+      - type: bind
+        source: ./config/auth.json
+        target: /usr/app/config/production.json
+    depends_on:
+    - mongo
+    networks:
+      automl:
+        ipv4_address: 192.165.13.20
+    extra_hosts:
+      - "mongo.automl.local:192.165.13.2"
+    restart: always
+
+  backend:
+    container_name: backend
+    image: "automl/backend"
+    volumes:
+      - type: bind
+        source: ./config/backend.json
+        target: /usr/app/config/production.json
+    depends_on:
+    - mongo
+    - rabbit
+    networks:
+      automl:
+        ipv4_address: 192.165.13.21
+    extra_hosts:
+      - "auth.automl.local:192.165.12.15"
+      - "mongo.automl.local:192.165.12.2"
+      - "rabbit.automl.local:192.165.12.3"
+    restart: always
+
+  shell:
+    container_name: shell
+    image: "automl/shell"
+    volumes:
+      - type: bind
+        source: ./config/shell.json
+        target: /usr/app/config/production.json
+    networks:
+      automl:
+        ipv4_address: 192.165.13.22
+    restart: always
+
+  nginx:
+    container_name: nginx
+    image: "nginx:1.15"
+    volumes:
+      - ./etc/nginx:/etc/nginx/conf.d:ro
+      - ./etc/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 80:80
+    networks:
+      automl:
+        ipv4_address: 192.165.13.15
+    restart: always
+networks:
+  automl:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 192.165.13.0/24
+volumes:
+  automl.mongo-db:

@@ -1,0 +1,73 @@
+#!/bin/bash
+source "$(dirname "$0")/services"
+
+pruneAfterBuild=false
+forceUpdate=false
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage:"
+  echo "  build [--all] [--prune] [--update] [<service> [...]]"
+  echo "Flags:"
+  echo "  --all    - build all services"
+  echo "  --update - updates local copy of each searvice from remote repository"
+  echo "  --prune  - run 'docker system prune -f' after building"
+  echo "Services available to build:"
+  print_services
+  exit 0
+fi
+
+declare -A buildModules
+for arg in "$@"
+do
+  if [ "$arg" == "--all" ]; then
+    for K in "${!servicesMap[@]}";
+    do
+      buildModules[$K]=true
+    done
+  elif [ "$arg" == "--prune" ]; then
+    pruneAfterBuild=true
+  elif [ "$arg" == "--update" ]; then
+    forceUpdate=true
+  else
+    if [ ! ${servicesMap[$arg]+_} ]; then
+      echo "Unexpected service: $arg"
+      exit 1
+    fi
+    buildModules[$arg]=true
+  fi
+done
+
+if [ ! -d "$BUILD_DIR" ] || [ "$forceUpdate" == "true" ]; then
+  update_services=""
+  if [ ! -d "$BUILD_DIR" ]; then
+    update_services="--all"
+  else
+    for K in "${!buildModules[@]}"
+    do
+      update_services="$update_services$K "
+    done
+  fi
+  source "$(dirname "$0")/update" $update_services
+fi
+
+# Build
+BUILD_ARGS="--build-arg PYPI_USER=$PYPI_USER"
+BUILD_ARGS="$BUILD_ARGS --build-arg PYPI_PASS=$PYPI_PASS"
+BUILD_ARGS="$BUILD_ARGS --build-arg PYPI_HOST=$PYPI_HOST"
+
+for K in "${!buildModules[@]}";
+do
+  echo "$(tput setaf 3)Building $K$(tput setaf 7)"
+  cd $BUILD_DIR/$K
+  export COMMIT_HASH=`git rev-parse HEAD`
+  imageCommit=`docker inspect --format='{{index .Config.Labels "commit-hash"}}' automl/$K 2>/dev/null`
+  if [ "$COMMIT_HASH" != "$imageCommit" ]; then
+    docker build -t automl/$K $BUILD_ARGS --label "commit-hash=$COMMIT_HASH" .
+  else
+    echo "$K [UP-TO-DATE]"
+  fi
+done
+
+if [ "$pruneAfterBuild" == "true" ]; then
+  docker system prune -f
+fi

@@ -1,0 +1,52 @@
+#!/bin/bash
+source "$(dirname "$0")/services"
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage:"
+  echo "  update [--all] [<service> [...]]"
+  echo "Flags:"
+  echo "  --all    - update all services"
+  echo "Services available to update:"
+  print_services
+  exit 0
+fi
+
+declare -A buildModules
+for arg in "$@"
+do
+  if [ "$arg" == "--all" ]; then
+    for K in "${!servicesMap[@]}";
+    do
+      buildModules[$K]=true
+    done
+  else
+    if [ ! ${servicesMap[$arg]+_} ]; then
+      echo "Unexpected service: $arg"
+      exit 1
+    fi
+    buildModules[$arg]=true
+  fi
+done
+
+for K in "${!buildModules[@]}";
+do
+  if [ -d "$BUILD_DIR/$K" ]; then
+    echo "Cleaning build directory for $K"
+    rm -rf $BUILD_DIR/$K
+  fi
+done
+
+if [ ! -d "$BUILD_DIR" ]; then
+  mkdir $BUILD_DIR
+fi
+cd $BUILD_DIR
+
+# Clone
+for K in "${!buildModules[@]}";
+do
+  repository=$(echo ${servicesMap[$K]} | cut -d'#' -f 1)
+  branch=$(echo "${servicesMap[$K]}#master" | cut -d'#' -f 2)
+  echo "Cloning $K: $(tput setaf 6)$repository$(tput setaf 7) branch $(tput setaf 6)$branch$(tput setaf 7)"
+  git clone --depth=1 --quiet --branch $branch $repository $BUILD_DIR/$K
+  cd $BUILD_DIR/$K && git log --pretty=format:"%h%x09%an%x09%ad%x09%s" --date=short && cd $BUILD_DIR
+done

@@ -1,0 +1,36 @@
+#!/bin/bash
+source "$(dirname "$0")/services"
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage:"
+  echo "  run [--all] [<service> [...]]"
+  echo "Flags:"
+  echo "  --all - run all services"
+  echo "Available services to start:"
+  docker-compose config --services
+  exit 0
+fi
+
+restartAll=false
+declare -A restartModules
+for arg in "$@"
+do
+  if [ "$arg" == "--all" ]; then
+    restartAll=true
+  else
+    restartModules[$arg]=true
+  fi
+done
+
+if [ "$restartAll" == "true" ]; then
+echo "Restarting All"
+  docker-compose down
+  docker-compose up -d
+else
+  for K in "${!restartModules[@]}";
+  do
+    echo "Restarting $K"
+    docker-compose rm -f -s $K
+    docker-compose up -d $K
+  done
+fi
