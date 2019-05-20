@@ -63,6 +63,20 @@ services:
         ipv4_address: 192.165.13.23
     restart: always
 
+  storage:
+    container_name: storage
+    image: "automl/storage"
+    volumes:
+      - type: bind
+        source: ./config/storage.json
+        target: /usr/app/config/production.json
+    depends_on:
+    - mongo
+    networks:
+      automl:
+        ipv4_address: 192.165.13.24
+    restart: always
+
   shell:
     container_name: shell
     image: "automl/shell"

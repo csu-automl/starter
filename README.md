@@ -143,7 +143,8 @@ The following table shows IP mapping for every service that will be run
 | auth        | 192.165.13.20 | Authorization service | 3000 |
 | backend     | 192.165.13.21 | Backend service | 3000 |
 | shell       | 192.165.13.22 | Frontend server | 3000 |
-| data-processor   | 192.165.13.23 | Data data-processor | 5000 |
+| data-processor   | 192.165.13.23 | Data Processor | 5000 |
+| storage   | 192.165.13.24 | File storage | 5000 |
 
 ### Static hosts
 Specify the following static hosts resolution in _hosts_ file:
@@ -152,6 +153,7 @@ Specify the following static hosts resolution in _hosts_ file:
 192.165.13.15   auth.automl.local
 192.165.13.15   backend.automl.local
 192.165.13.15   data-processor.automl.local
+192.165.13.15   storage.automl.local
 192.165.13.15   automl.local
 
 192.165.13.2    mongo.automl.local
