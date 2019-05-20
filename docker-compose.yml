@@ -55,6 +55,14 @@ services:
       - "rabbit.automl.local:192.165.12.3"
     restart: always
 
+  data-processor:
+    container_name: data-processor
+    image: "automl/data-processor"
+    networks:
+      automl:
+        ipv4_address: 192.165.13.23
+    restart: always
+
   shell:
     container_name: shell
     image: "automl/shell"

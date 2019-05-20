@@ -143,7 +143,7 @@ The following table shows IP mapping for every service that will be run
 | auth        | 192.165.13.20 | Authorization service | 3000 |
 | backend     | 192.165.13.21 | Backend service | 3000 |
 | shell       | 192.165.13.22 | Frontend server | 3000 |
-| processor   | 192.165.13.23 | Data Processor | 5000 |
+| data-processor   | 192.165.13.23 | Data data-processor | 5000 |
 
 ### Static hosts
 Specify the following static hosts resolution in _hosts_ file:

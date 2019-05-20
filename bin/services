@@ -21,7 +21,7 @@ declare -A servicesMap
 servicesMap[auth]="git@github.com:csu-automl/auth.git#$mainBranch"
 servicesMap[backend]="git@github.com:csu-automl/backend.git#$mainBranch"
 servicesMap[shell]="git@github.com:csu-automl/shell.git#$mainBranch"
-servicesMap[processor]="git@github.com:csu-automl/data-processor.git#$mainBranch"
+servicesMap[data-processor]="git@github.com:csu-automl/data-processor.git#$mainBranch"
 
 print_services () {
   for K in "${!servicesMap[@]}";
