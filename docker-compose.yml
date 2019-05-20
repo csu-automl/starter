@@ -50,9 +50,9 @@ services:
       automl:
         ipv4_address: 192.165.13.21
     extra_hosts:
-      - "auth.automl.local:192.165.12.15"
-      - "mongo.automl.local:192.165.12.2"
-      - "rabbit.automl.local:192.165.12.3"
+      - "auth.automl.local:192.165.13.15"
+      - "mongo.automl.local:192.165.13.2"
+      - "rabbit.automl.local:192.165.13.3"
     restart: always
 
   shell:
